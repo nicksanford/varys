@@ -3,6 +3,7 @@
 import scrapy
 from varys.items import SephoraProduct
 from varys.items import SephoraReview
+from datetime import datetime
 
 #sitemap_urls = ['http://www.sephora.com/products-sitemap.xml']
 class SephoraSitemapSpider(scrapy.Spider):
@@ -21,9 +22,12 @@ class SephoraSitemapSpider(scrapy.Spider):
         image_url = self.extract_first(res, '//meta[@itemprop="image"]/@content')
         sephora_id = self.extract_first(res, '//meta[@property="product:id"]/@content')
         yield SephoraProduct( brand=brand
+                            , url=res.url
                             , image_url=image_url
                             , sephora_id=sephora_id
                             , name=name
+                            , source=res.text
+                            , scraped_at = str(datetime.now())
                             )
         yield scrapy.Request( self.review_url(sephora_id, '1')
                             , callback=self.parse_review
@@ -39,7 +43,12 @@ class SephoraSitemapSpider(scrapy.Spider):
                 for text_list in review_extract]
 
         for review in reviews:
-            yield SephoraReview(sephora_id=sephora_id, text=review)
+            yield SephoraReview( sephora_id=sephora_id
+                               , text=review
+                               , url=res.url
+                               , source=res.text
+                               , scraped_at = str(datetime.now())
+                               )
 
         url = self.review_url(sephora_id, self.next_page(res.url))
         if self.go_to_next_page(res):
