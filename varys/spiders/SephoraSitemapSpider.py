@@ -1,20 +1,24 @@
 # scrapy crawl sephora_sitemap_spider -o items.json --set DOWNLOAD_DELAY=.25
 
-import scrapy
-from varys.items import SephoraProduct
-from varys.items import SephoraReview
+from scrapy import Spider, Request
+from varys.items import SephoraProduct, SephoraReview
 from datetime import datetime
+import logging
+logger = logging.getLogger(__name__)
 
-#sitemap_urls = ['http://www.sephora.com/products-sitemap.xml']
-class SephoraSitemapSpider(scrapy.Spider):
+REVIEW_URL_TEMPLATE = 'https://reviews.sephora.com/8723abredes/{}/reviews.htm?format=embedded&page={}'
+
+#sitemap_urls = ['https://www.sephora.com/products-sitemap.xml']
+class SephoraSitemapSpider(Spider):
     name = 'sephora_sitemap_spider'
-    start_urls = ['http://www.sephora.com/products-sitemap.xml']
+    start_urls = ['https://www.sephora.com/products-sitemap.xml']
 
     # Parse Functions
     def parse(self, res):
-        res.selector.register_namespace('d', 'http://www.sitemaps.org/schemas/sitemap/0.9')
+        res.selector.register_namespace('d', 'https://www.sitemaps.org/schemas/sitemap/0.9')
         for url in res.xpath('//d:loc/text()').extract():
-            yield scrapy.Request(url, callback=self.parse_product)
+            logger.info("processing url %s", url)
+            yield Request(url, callback=self.parse_product)
 
     def parse_product(self, res):
         raw_name = self.extract_first(res, '//meta[@itemprop="name"]/@content')
@@ -29,9 +33,9 @@ class SephoraSitemapSpider(scrapy.Spider):
                             , source=res.text
                             , scraped_at = str(datetime.now())
                             )
-        yield scrapy.Request( self.review_url(sephora_id, '1')
-                            , callback=self.parse_review
-                            )
+        yield Request( self.review_url(sephora_id, '1')
+                     , callback=self.parse_review
+                     )
 
     def parse_review(self, res):
         sephora_id = res.url.split('/')[4]
@@ -51,21 +55,21 @@ class SephoraSitemapSpider(scrapy.Spider):
 
         url = self.review_url(sephora_id, self.next_page(res.url))
         if self.go_to_next_page(res):
-            yield scrapy.Request(url, callback=self.parse_review)
+            yield Request(url, callback=self.parse_review)
 
     # Helper / Utility Functions
     def extract_first(self, res, path):
         return res.xpath(path).extract()[0]
 
     def go_to_next_page(self, res):
-        script_tuples = [s.split(':') 
+        script_tuples = [s.split(':')
                 for s in res.xpath('//script/text()').extract()[-1].split(',')]
         total_pages = int([script_tuple[1]
-                for script_tuple in script_tuples
-                if script_tuple[0] == '"numPages"'][0])
+            for script_tuple in script_tuples
+            if script_tuple[0] == '"numPages"'][0])
         next_page = int(self.next_page(res.url))
-        print "total_pages %s" % total_pages
-        print "next_page %s" % next_page
+        logger.info("total_pages %s", total_pages)
+        logger.info("next_page %s", next_page)
         return total_pages >= next_page
 
     def name_and_brand(self, raw_name):
@@ -80,4 +84,4 @@ class SephoraSitemapSpider(scrapy.Spider):
         return str(int(url.split('=')[-1]) + 1)
 
     def review_url(self, sephora_id, page):
-        return 'http://reviews.sephora.com/8723abredes/{}/reviews.htm?format=embedded&page={}'.format(sephora_id, page)
+        return REVIEW_URL_TEMPLATE.format(sephora_id, page)
