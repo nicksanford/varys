@@ -46,7 +46,6 @@ class SephoraSitemapSpider(scrapy.Spider):
             yield SephoraReview( sephora_id=sephora_id
                                , text=review
                                , url=res.url
-                               , source=res.text
                                , scraped_at = str(datetime.now())
                                )
 

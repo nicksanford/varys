@@ -1,4 +1,13 @@
 scrapy
 ipython
-sqlalchemy
 psycopg2
+sqlalchemy
+six
+twisted
+w3lib
+lxml
+parsel
+PyDispatcher
+pyOpenSSL
+cryptography
+queuelib

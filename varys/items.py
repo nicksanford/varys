@@ -23,7 +23,6 @@ class SephoraReview(scrapy.Item):
     sephora_id = scrapy.Field()
     text = scrapy.Field()
     url = scrapy.Field()
-    source = scrapy.Field()
     scraped_at = scrapy.Field()
     inserted_at = scrapy.Field()
     updated_at = scrapy.Field()
