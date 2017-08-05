@@ -6,16 +6,15 @@ from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 
-REVIEW_URL_TEMPLATE = 'https://reviews.sephora.com/8723abredes/{}/reviews.htm?format=embedded&page={}'
+REVIEW_URL_TEMPLATE = 'http://reviews.sephora.com/8723abredes/{}/reviews.htm?format=embedded&page={}'
 
-#sitemap_urls = ['https://www.sephora.com/products-sitemap.xml']
 class SephoraSitemapSpider(Spider):
     name = 'sephora_sitemap_spider'
-    start_urls = ['https://www.sephora.com/products-sitemap.xml']
+    start_urls = ['http://www.sephora.com/products-sitemap.xml']
 
     # Parse Functions
     def parse(self, res):
-        res.selector.register_namespace('d', 'https://www.sitemaps.org/schemas/sitemap/0.9')
+        res.selector.register_namespace('d', 'http://www.sitemaps.org/schemas/sitemap/0.9')
         for url in res.xpath('//d:loc/text()').extract():
             logger.info("processing url %s", url)
             yield Request(url, callback=self.parse_product)
