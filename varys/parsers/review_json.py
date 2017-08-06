@@ -1,72 +1,8 @@
-# TODO Depends on python 3.6, please upgrade prior to using
-import csv
-import pprint
-from collections import Counter
 import re
-import json
 
+def from_review(review):
+    create_cleaned_text = create_cleaned_text(review)
 
-with open('/Users/nicholassanford/Downloads/test2 - test2.csv') as f:
-    data = list(csv.DictReader(f))
-    
-def create_cleaned_text(text):
-    return [x.strip() for x in  text.split('\n') if x.strip()]
-
-def extract_rating(cleaned_text_list):
-    out_of_index = cleaned_text_list.index('out of')
-    return cleaned_text_list[out_of_index - 1]
-    
-def extract_out_of(cleaned_text_list):
-    out_of_index = cleaned_text_list.index('out of')
-    return cleaned_text_list[out_of_index + 1]
-
-def extract_starts_with(cleaned_text_list, text):
-    extract_list = [x.replace(text, '').strip() 
-                    for x in cleaned_text_list 
-                    if x.startswith(text)]
-    
-    return extract_list[0] if extract_list else None
-
-def extract_title(cleaned_text_list):
-    out_of_index = cleaned_text_list.index('out of')
-    
-    if cleaned_text_list[out_of_index + 2].startswith('- '):
-        return None
-    else:
-        return cleaned_text_list[out_of_index + 2]
-
-def extract_helpful_count(cleaned_text_list):
-    helpful_word_list = cleaned_text_list[-1].split()
-    yes_index = helpful_word_list.index('Yes')
-    return int(helpful_word_list[yes_index + 2])
-
-def extract_not_helpful_count(cleaned_text_list):
-    helpful_word_list = cleaned_text_list[-1].split()
-    no_index = helpful_word_list.index('No')
-    return int(helpful_word_list[no_index + 2])
-    
-def extract_date(cleaned_text_list):
-    match_list = [element 
-                  for element in cleaned_text_list
-                  if re.fullmatch('- \d\d.\d\d.\d\d', element)]
-    return match_list[0]
-
-def date_index(cleaned_text_list):
-    return cleaned_text_list.index(extract_date(cleaned_text_list))
-
-def extract_quick_take(cleaned_text_list):
-    starts_with = extract_starts_with(cleaned_text_list, 'Quick Take:')
-    return list(map(str.strip, starts_with.split(','))) if starts_with else None
-
-def extract_review_text(cleaned_text_list):
-    review_begin_index = date_index(cleaned_text_list) + 1
-    review_end_index = len(cleaned_text_list) - 1
-    review_text_list = cleaned_text_list[review_begin_index : review_end_index]
-    return '\n'.join([text.strip() 
-                      for text in review_text_list
-                      if not text.startswith('Quick Take:')])
-
-def cleaned_text_list_to_reveiw_dict(cleaned_text_list):
     return {
         'user_name': cleaned_text_list[0].replace('(read all my reviews)', '').strip(),
         'location': extract_starts_with(cleaned_text_list, 'Location:'),
@@ -81,8 +17,60 @@ def cleaned_text_list_to_reveiw_dict(cleaned_text_list):
         'others_thought_not_helpful_count': extract_not_helpful_count(cleaned_text_list)
     }
 
+def create_cleaned_text(text):
+    return [x.strip() for x in  text.split('\n') if x.strip()]
 
-cleaned_text_lists = [cleaned_text_lists_to_dict(create_cleaned_text(row['text'])) for row in data]
-[{**row, **{'review_json': json.dumps(review_dict)}}  for (row, review_dict) in zip(data, cleaned_text_lists)]
-#list(zip(map(cleaned_text_lists_to_dict, cleaned_text_lists), [row['text'] for row in data]))
-#list(map(lambda x: x[-5], cleaned_text_lists))
+def date_index(cleaned_text_list):
+    return cleaned_text_list.index(extract_date(cleaned_text_list))
+
+def extract_date(cleaned_text_list):
+    match_list = [element
+                  for element in cleaned_text_list
+                  if re.fullmatch('- \d\d.\d\d.\d\d', element)]
+    return match_list[0]
+
+def extract_helpful_count(cleaned_text_list):
+    helpful_word_list = cleaned_text_list[-1].split()
+    yes_index = helpful_word_list.index('Yes')
+    return int(helpful_word_list[yes_index + 2])
+
+def extract_not_helpful_count(cleaned_text_list):
+    helpful_word_list = cleaned_text_list[-1].split()
+    no_index = helpful_word_list.index('No')
+    return int(helpful_word_list[no_index + 2])
+
+def extract_out_of(cleaned_text_list):
+    out_of_index = cleaned_text_list.index('out of')
+    return cleaned_text_list[out_of_index + 1]
+
+def extract_quick_take(cleaned_text_list):
+    starts_with = extract_starts_with(cleaned_text_list, 'Quick Take:')
+    return list(map(str.strip, starts_with.split(','))) if starts_with else None
+
+def extract_rating(cleaned_text_list):
+    out_of_index = cleaned_text_list.index('out of')
+    return cleaned_text_list[out_of_index - 1]
+
+def extract_review_text(cleaned_text_list):
+    review_begin_index = date_index(cleaned_text_list) + 1
+    review_end_index = len(cleaned_text_list) - 1
+    review_text_list = cleaned_text_list[review_begin_index : review_end_index]
+    return '\n'.join([text.strip() 
+                      for text in review_text_list
+                      if not text.startswith('Quick Take:')])
+
+def extract_starts_with(cleaned_text_list, text):
+    extract_list = [x.replace(text, '').strip() 
+                    for x in cleaned_text_list 
+                    if x.startswith(text)]
+
+    return extract_list[0] if extract_list else None
+
+def extract_title(cleaned_text_list):
+    out_of_index = cleaned_text_list.index('out of')
+
+    if cleaned_text_list[out_of_index + 2].startswith('- '):
+        return None
+    else:
+        return cleaned_text_list[out_of_index + 2]
+

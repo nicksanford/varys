@@ -92,7 +92,7 @@ DATABASE = {
         'drivername': 'postgres',
         'host': 'localhost',
         'port': '5432',
-        'database': 'smell_good'
-        #'username': 'YOUR_USERNAME',
-        #'password': 'YOUR_PASSWORD',
+        'database': 'smell_good',
+        'username': 'postgres',
+        'password': 'postgres',
         }
