@@ -13,3 +13,8 @@ bffi-dev libssl-dev
 Run the project with `cd varys && make`
 If your page is not returning results you can debug it with the shell
 `scrapy shell 'http://quotes.toscrape.com/page/1/'`
+
+## TODO:
+1. Move to python3 to help with unicode issues
+2. Figure out the try catches I have put in & make the errors not happen any more
+3. Figure out a way to identify unique reviews

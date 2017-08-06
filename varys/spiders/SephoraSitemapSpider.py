@@ -25,7 +25,12 @@ class SephoraSitemapSpider(Spider):
     def parse_product(self, response):
         # Formatted like this: 'Sephora: NARS : Single Eye Shadow : eyeshadow'
         raw_title = response.xpath('//meta[@property="og:title"]/@content').extract_first()
-        _, brand, name, category = [item.strip() for item in raw_title.split(':')]
+        try:
+            _, brand, name, category = [item.strip() for item in raw_title.split(':')]
+        except Exception as e:
+            logger.error("exception %s", str(e))
+            logger.error("raw_title %s", raw_title)
+            raise e
         image_url = response.xpath('//meta[@property="og:image"]/@content').extract_first()
         sephora_id = response.xpath('//meta[@property="product:id"]/@content').extract_first()
 
@@ -70,8 +75,14 @@ class SephoraSitemapSpider(Spider):
     def go_to_next_page(self, response):
         script_tuples = [s.split(':')
                 for s in response.xpath('//script/text()').extract()[-1].split(',')]
-        total_pages = int([number for (text, number) in script_tuples
-                                  if text == '"numPages"'][0])
+
+        try:
+            total_pages = int([number for (text, number) in script_tuples
+                                      if text == '"numPages"'][0])
+        except Exception as e:
+            logger.error("exception %s", str(e))
+            logger.error("script_tuples %s", raw_title)
+            raise e
         next_page = int(self.next_page(response.url))
         logger.info("total_pages %s", total_pages)
         logger.info("next_page %s", next_page)
