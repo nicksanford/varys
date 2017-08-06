@@ -1,21 +1,5 @@
 import re
 
-def from_review(review):
-    create_cleaned_text = create_cleaned_text(review)
-
-    return {
-        'user_name': cleaned_text_list[0].replace('(read all my reviews)', '').strip(),
-        'location': extract_starts_with(cleaned_text_list, 'Location:'),
-        'age': extract_starts_with(cleaned_text_list, 'Age:'),
-        'rating': extract_rating(cleaned_text_list),
-        'rating_out_of': extract_out_of(cleaned_text_list),
-        'title': extract_title(cleaned_text_list),
-        'date': extract_date(cleaned_text_list).split()[1],
-        'quick_take': extract_quick_take(cleaned_text_list),
-        'review_text': extract_review_text(cleaned_text_list), #currently this only pulls the last paragraph, you need to change this to pull the entire review
-        'others_thought_helpful_count': extract_helpful_count(cleaned_text_list), 
-        'others_thought_not_helpful_count': extract_not_helpful_count(cleaned_text_list)
-    }
 
 def create_cleaned_text(text):
     return [x.strip() for x in  text.split('\n') if x.strip()]
@@ -74,3 +58,19 @@ def extract_title(cleaned_text_list):
     else:
         return cleaned_text_list[out_of_index + 2]
 
+def from_review(review):
+    cleaned_text_list = create_cleaned_text(review)
+
+    return {
+        'user_name': cleaned_text_list[0].replace('(read all my reviews)', '').strip(),
+        'location': extract_starts_with(cleaned_text_list, 'Location:'),
+        'age': extract_starts_with(cleaned_text_list, 'Age:'),
+        'rating': extract_rating(cleaned_text_list),
+        'rating_out_of': extract_out_of(cleaned_text_list),
+        'title': extract_title(cleaned_text_list),
+        'date': extract_date(cleaned_text_list).split()[1],
+        'quick_take': extract_quick_take(cleaned_text_list),
+        'review_text': extract_review_text(cleaned_text_list), #currently this only pulls the last paragraph, you need to change this to pull the entire review
+        'others_thought_helpful_count': extract_helpful_count(cleaned_text_list), 
+        'others_thought_not_helpful_count': extract_not_helpful_count(cleaned_text_list)
+    }

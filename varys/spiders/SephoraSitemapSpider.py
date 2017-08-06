@@ -1,4 +1,4 @@
-# scrapy crawl sephora_sitemap_spider -o items.json --set DOWNLOAD_DELAY=.25 FEED_FORMAT=jsonlines
+# scrapy crawl sephora_sitemap_spider -o items.json --set DOWNLOAD_DELAY=.25 --set FEED_FORMAT=jsonlines
 
 from scrapy import Spider, Request
 from varys.items import SephoraProduct, SephoraReview
@@ -35,7 +35,7 @@ class SephoraSitemapSpider(Spider):
                             , sephora_id=sephora_id
                             , name=name
                             , source=response.text
-                            , category
+                            , category=category
                             , scraped_at = str(datetime.now())
                             )
         yield Request( REVIEW_URL_TEMPLATE.format(sephora_id=sephora_id, page='1')
