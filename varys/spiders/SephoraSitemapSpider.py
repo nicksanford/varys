@@ -3,6 +3,7 @@
 from scrapy import Spider, Request
 from varys.items import SephoraProduct, SephoraReview
 from datetime import datetime
+from functools import reduce
 
 from ..parsers import review_json
 
@@ -28,6 +29,7 @@ class SephoraSitemapSpider(Spider):
         try:
             _, brand, name, category = [item.strip() for item in raw_title.split(':')]
         except Exception as e:
+            import pdb; pdb.set_trace()
             logger.error("exception %s", str(e))
             logger.error("raw_title %s", raw_title)
             raise e
@@ -73,20 +75,25 @@ class SephoraSitemapSpider(Spider):
             yield Request(url, callback=self.parse_review)
 
     def go_to_next_page(self, response):
-        script_tuples = [s.split(':')
-                for s in response.xpath('//script/text()').extract()[-1].split(',')]
+        raw_script_text = response.xpath('//script/text()').extract()[-1]
+        if '"numPages"' in raw_script_text:
 
-        try:
-            total_pages = int([number for (text, number) in script_tuples
-                                      if text == '"numPages"'][0])
-        except Exception as e:
-            logger.error("exception %s", str(e))
-            logger.error("script_tuples %s", script_tuples)
-            raise e
-        next_page = int(self.next_page(response.url))
-        logger.info("total_pages %s", total_pages)
-        logger.info("next_page %s", next_page)
-        return total_pages >= next_page
+            script_tuples = [s.split(':') for s in raw_script_text.split(',')]
+            try:
+                total_pages = int([element[1] for element in script_tuples
+                                          if element[0] == '"numPages"'][0])
+            except Exception as e:
+                import pdb; pdb.set_trace()
+                logger.error("exception %s", str(e))
+                logger.error("script_tuples %s", script_tuples)
+                raise e
+            next_page = int(self.next_page(response.url))
+            logger.info("total_pages %s", total_pages)
+            logger.info("next_page %s", next_page)
+            return total_pages >= next_page
+
+        else:
+            return False
 
     def next_page(self, url):
         return str(int(url.split('=')[-1]) + 1)
