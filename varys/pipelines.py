@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy.orm import sessionmaker
-from models import ScrapedSephoraProduct, ScrapedSephoraReview, db_connect
+from .models import ScrapedSephoraProduct, ScrapedSephoraReview, db_connect
 import logging
 logger = logging.getLogger(__name__)
 
