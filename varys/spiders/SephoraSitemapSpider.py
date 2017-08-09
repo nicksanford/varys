@@ -81,7 +81,7 @@ class SephoraSitemapSpider(Spider):
                                       if text == '"numPages"'][0])
         except Exception as e:
             logger.error("exception %s", str(e))
-            logger.error("script_tuples %s", raw_title)
+            logger.error("script_tuples %s", script_tuples)
             raise e
         next_page = int(self.next_page(response.url))
         logger.info("total_pages %s", total_pages)
