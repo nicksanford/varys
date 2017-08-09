@@ -10,7 +10,7 @@ def date_index(cleaned_text_list):
 def extract_date(cleaned_text_list):
     match_list = [element
                   for element in cleaned_text_list
-                  if fullmatch('- \d\d.\d\d.\d\d', element)]
+                  if re.fullmatch('- \d\d.\d\d.\d\d', element)]
     return match_list[0]
 
 def extract_helpful_count(cleaned_text_list):
@@ -74,8 +74,3 @@ def from_review(review):
         'others_thought_helpful_count': extract_helpful_count(cleaned_text_list), 
         'others_thought_not_helpful_count': extract_not_helpful_count(cleaned_text_list)
     }
-
-def fullmatch(regex, string, flags=0):
-    """Emulate python-3.4 re.fullmatch()."""
-    return re.match("(?:" + regex + r")\Z", string, flags=flags)
-
