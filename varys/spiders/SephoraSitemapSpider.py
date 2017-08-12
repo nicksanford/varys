@@ -30,7 +30,6 @@ class SephoraSitemapSpider(Spider):
             try:
                 _, brand, name, category = [item.strip() for item in raw_title.split(':')]
             except Exception as e:
-                import pdb; pdb.set_trace()
                 logger.error("exception %s", str(e))
                 logger.error("raw_title %s", raw_title)
                 raise e
@@ -84,7 +83,6 @@ class SephoraSitemapSpider(Spider):
                 total_pages = int([element[1] for element in script_tuples
                                           if element[0] == '"numPages"'][0])
             except Exception as e:
-                import pdb; pdb.set_trace()
                 logger.error("exception %s", str(e))
                 logger.error("script_tuples %s", script_tuples)
                 raise e
