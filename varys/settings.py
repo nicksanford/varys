@@ -14,6 +14,9 @@ BOT_NAME = 'varys'
 SPIDER_MODULES = ['varys.spiders']
 NEWSPIDER_MODULE = 'varys.spiders'
 
+LOG_ENABLED = True
+LOG_LEVEL = 'ERROR'
+LOG_FILE = 'scrapy.log'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'varys (+http://www.yourdomain.com)'
@@ -92,7 +95,7 @@ DATABASE = {
         'drivername': 'postgres',
         'host': 'localhost',
         'port': '5432',
-        'database': 'smell_good'
-        #'username': 'YOUR_USERNAME',
-        #'password': 'YOUR_PASSWORD',
+        'database': 'smell_good',
+        'username': 'postgres',
+        'password': 'postgres',
         }
