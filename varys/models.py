@@ -26,7 +26,7 @@ class ScrapedSephoraProduct(DeclarativeBase):
     image_url = Column('image_url', String)
     url = Column('url', String)
     source = Column('source', Text)
-    category = Column('url', String)
+    category = Column('category', String)
     scraped_at = Column('scraped_at', DateTime)
     inserted_at = Column('inserted_at', DateTime)
     updated_at = Column('updated_at', DateTime)
