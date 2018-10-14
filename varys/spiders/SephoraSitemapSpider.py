@@ -29,28 +29,29 @@ class SephoraSitemapSpider(Spider):
     def parse_product(self, response):
         # Formatted like this: 'Sephora: NARS : Single Eye Shadow : eyeshadow'
         raw_title = response.xpath('//meta[@property="og:title"]/@content').extract_first()
-        try:
-            items = [item.strip() for item in raw_title.split('|')[0].split('-')]
-            if len(items) == 3:
-                name = ' - '.join(items[:1])
-                brand = items[2]
-            else:
-                name, brand = items
-        except Exception as e:
-            logger.error("exception %s", str(e))
-            logger.error("raw_title %s", raw_title)
-            raise e
-        image_url = response.xpath('//meta[@property="og:image"]/@content').extract_first()
-        sephora_id = response.url.split('-')[-1]
+        if raw_title:
+            try:
+                items = [item.strip() for item in raw_title.split('|')[0].split('-')]
+                if len(items) == 3:
+                    name = ' - '.join(items[:1])
+                    brand = items[2]
+                else:
+                    name, brand = items
+            except Exception as e:
+                logger.error("exception %s", str(e))
+                logger.error("raw_title %s", raw_title)
+                raise e
+            image_url = response.xpath('//meta[@property="og:image"]/@content').extract_first()
+            sephora_id = response.url.split('-')[-1]
 
-        yield SephoraProduct( brand=brand
-                            , url=response.url
-                            , image_url=image_url
-                            , sephora_id=sephora_id
-                            , name=name
-                            , source=response.text
-                            , scraped_at = str(datetime.now())
-                            )
+            yield SephoraProduct( brand=brand
+                                , url=response.url
+                                , image_url=image_url
+                                , sephora_id=sephora_id
+                                , name=name
+                                , source=response.text
+                                , scraped_at = str(datetime.now())
+                                )
         # yield Request( REVIEW_URL_TEMPLATE.format(sephora_id=sephora_id, page='1')
         #              , callback=self.parse_review
         #              )
