@@ -31,7 +31,7 @@ class SephoraSitemapSpider(Spider):
         raw_title = response.xpath('//meta[@property="og:title"]/@content').extract_first()
         if raw_title:
             try:
-                items = [item.strip() for item in raw_title.split('|')[0].split('-')]
+                items = [item.strip() for item in '|'.join(raw_title.split('|')[:-1]).split('-')]
                 if len(items) > 2:
                     name = ' - '.join(items[:-1])
                     brand = items[2]
