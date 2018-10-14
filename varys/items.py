@@ -15,7 +15,6 @@ class SephoraProduct(scrapy.Item):
     image_url = scrapy.Field()
     url = scrapy.Field()
     source = scrapy.Field()
-    category = scrapy.Field()
     scraped_at = scrapy.Field()
     inserted_at = scrapy.Field()
     updated_at = scrapy.Field()

@@ -20,34 +20,40 @@ class SephoraSitemapSpider(Spider):
     def parse(self, response):
         response.selector.register_namespace('d', 'http://www.sitemaps.org/schemas/sitemap/0.9')
         for url in response.xpath('//d:loc/text()').extract():
-            logger.info("processing url %s", url)
-            yield Request(url, callback=self.parse_product)
+            if url.split('-')[-1][0] == 'P':
+                logger.info("processing url %s", url)
+                yield Request(url, callback=self.parse_product)
+            else:
+                logger.warning("not processing url %s as it is invalid", url)
 
     def parse_product(self, response):
         # Formatted like this: 'Sephora: NARS : Single Eye Shadow : eyeshadow'
         raw_title = response.xpath('//meta[@property="og:title"]/@content').extract_first()
-        if raw_title:
-            try:
-                _, brand, name, category = [item.strip() for item in raw_title.split(':')]
-            except Exception as e:
-                logger.error("exception %s", str(e))
-                logger.error("raw_title %s", raw_title)
-                raise e
-            image_url = response.xpath('//meta[@property="og:image"]/@content').extract_first()
-            sephora_id = response.xpath('//meta[@property="product:id"]/@content').extract_first()
+        try:
+            items = [item.strip() for item in raw_title.split('|')[0].split('-')]
+            if len(items) == 3:
+                name = ' - '.join(items[:1])
+                brand = items[2]
+            else:
+                name, brand = items
+        except Exception as e:
+            logger.error("exception %s", str(e))
+            logger.error("raw_title %s", raw_title)
+            raise e
+        image_url = response.xpath('//meta[@property="og:image"]/@content').extract_first()
+        sephora_id = response.url.split('-')[-1]
 
-            yield SephoraProduct( brand=brand
-                                , url=response.url
-                                , image_url=image_url
-                                , sephora_id=sephora_id
-                                , name=name
-                                , source=response.text
-                                , category=category
-                                , scraped_at = str(datetime.now())
-                                )
-            yield Request( REVIEW_URL_TEMPLATE.format(sephora_id=sephora_id, page='1')
-                         , callback=self.parse_review
-                         )
+        yield SephoraProduct( brand=brand
+                            , url=response.url
+                            , image_url=image_url
+                            , sephora_id=sephora_id
+                            , name=name
+                            , source=response.text
+                            , scraped_at = str(datetime.now())
+                            )
+        # yield Request( REVIEW_URL_TEMPLATE.format(sephora_id=sephora_id, page='1')
+        #              , callback=self.parse_review
+        #              )
 
     def parse_review(self, response):
         sephora_id = response.url.split('/')[4]
