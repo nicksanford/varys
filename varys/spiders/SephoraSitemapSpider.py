@@ -32,8 +32,8 @@ class SephoraSitemapSpider(Spider):
         if raw_title:
             try:
                 items = [item.strip() for item in raw_title.split('|')[0].split('-')]
-                if len(items) == 3:
-                    name = ' - '.join(items[:1])
+                if len(items) > 2:
+                    name = ' - '.join(items[:-1])
                     brand = items[2]
                 else:
                     name, brand = items
